@@ -27,70 +27,11 @@ const Analytics = () => {
   };
 
   // Add test data generation function
-  const generateTestData = async () => {
-    try {
-      setTestStatus('Generating test data...');
-      const response = await fetch('http://localhost:5000/api/analytics/seed-test-data', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      const result = await response.json();
-      setTestStatus(`Test data generated: ${result.insertedCount} records created`);
-      
-      // Refresh the data
-      await fetchData();
-    } catch (error) {
-      setTestStatus(`Error generating test data: ${error.message}`);
-    }
-  };
-
-  // Add verification function
-  const verifyData = async () => {
-    try {
-      setTestStatus('Verifying data...');
-      const response = await fetch('http://localhost:5000/api/analytics/verify-data', {
-        headers: {
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
-        }
-      });
-      
-      const data = await response.json();
-      console.log('Verification data:', data);
-      setTestStatus(`Verification complete: ${data.counts.analytics} analytics records, ${data.counts.links} links`);
-    } catch (error) {
-      setTestStatus(`Error verifying data: ${error.message}`);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className={styles.loadingContainer}>
-        <p>Loading analytics data...</p>
-      </div>
-    );
-  }
-
+ 
   return (
     <div className={styles.analyticsContainer}>
       {/* Add test controls */}
-      <div className={styles.testControls}>
-        <button onClick={generateTestData} className={styles.testButton}>
-          Generate Test Data
-        </button>
-        <button onClick={verifyData} className={styles.testButton}>
-          Verify Data
-        </button>
-        {testStatus && (
-          <div className={styles.testStatus}>
-            {testStatus}
-          </div>
-        )}
-      </div>
-
+      
       {error && (
         <div className={styles.errorContainer}>
           <p>Error: {error}</p>
