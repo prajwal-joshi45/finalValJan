@@ -1,4 +1,4 @@
-const API_URL = 'https://finalvaljan-backend.onrender.com';
+const API_URL = 'https://finalvaljan-backend.onrender.com/api';
 
 export const register = async (userData) => {
   console.log('Sending registration data:', userData); // Add this log
