@@ -1,17 +1,122 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate} from 'react-router-dom';
 import styles from './Dashboard.module.css';
+import { linkService } from '../services/linkService';
+
 
 const Layout = ({ children, user }) => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = React.useState('dashboard');
-  const [showNewLinkModal, setShowNewLinkModal] = React.useState(false);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [showNewLinkModal, setShowNewLinkModal] = useState(false);
+  const [newLinkForm, setNewLinkForm] = useState({
+    destinationUrl: '',
+    comments: '',
+    hasExpiration: false,
+    expirationDate: ''
+  });
+  
+
+  const handleNewLinkChange = (field, value) => {
+    setNewLinkForm(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+
+  const handleNewLinkSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      await linkService.createLink(newLinkForm);
+      setShowNewLinkModal(false);
+      setNewLinkForm({
+        destinationUrl: '',
+        comments: '',
+        hasExpiration: false,
+        expirationDate: ''
+      });
+    } catch (error) {
+      console.error('Error creating link:', error);
+    }
+  };
+
 
   const handleNavigation = (path) => {
     setActiveTab(path);
     navigate(`/${path}`);
   };
+  const NewLinkModal = () => (
+    <div className={styles.modalOverlay}>
+      <div className={styles.newLinkModal}>
+        <div className={styles.modalHeader}>
+          <h2>New Link</h2>
+          <button 
+            className={styles.closeButton} 
+            onClick={() => setShowNewLinkModal(false)}
+          >
+            ×
+          </button>
+        </div>
+        
+        <form onSubmit={handleNewLinkSubmit}>
+          <div className={styles.formGroup}>
+            <label>Destination Url *</label>
+            <input
+              type="url"
+              value={newLinkForm.destinationUrl}
+              onChange={(e) => handleNewLinkChange('destinationUrl', e.target.value)}
+              placeholder="https://web.whatsapp.com/"
+              required
+            /> 
+            </div>
 
+          <div className={styles.formGroup}>
+            <label>Comments *</label>
+            <textarea
+              value={newLinkForm.comments}
+              onChange={(e) => handleNewLinkChange('comments', e.target.value)}
+              placeholder="Add remarks"
+              required
+            />
+          </div>
+
+          <div className={styles.formGroup}>
+            <div className={styles.expirationToggle}>
+              <label>Link Expiration</label>
+              <label className={styles.switch}>
+                <input
+                  type="checkbox"
+                  checked={newLinkForm.hasExpiration}
+                  onChange={(e) => handleNewLinkChange('hasExpiration', e.target.checked)}
+                />
+                <span className={styles.slider}></span>
+              </label>
+            </div>
+            {newLinkForm.hasExpiration && (
+              <input
+                type="datetime-local"
+                value={newLinkForm.expirationDate}
+                onChange={(e) => handleNewLinkChange('expirationDate', e.target.value)}
+                className={styles.dateInput}
+              />
+            )}
+          </div>
+
+          <div className={styles.modalActions}>
+            <button 
+              type="button" 
+              className={styles.clearButton}
+              onClick={() => setShowNewLinkModal(false)}
+            >
+              Clear
+            </button>
+            <button type="submit" className={styles.createButton}>
+              Create new
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
   return (
     <div className={styles.container}>
       <aside className={styles.sidebar}>
@@ -74,6 +179,8 @@ const Layout = ({ children, user }) => {
           {children}
         </main>
       </div>
+      {showNewLinkModal && <NewLinkModal />}
+
     </div>
   );
 };

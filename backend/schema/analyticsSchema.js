@@ -17,5 +17,7 @@ const analyticsSchema = new mongoose.Schema({
     },    browser: String,
    
   });
+
+  
   
   module.exports = mongoose.model('Analytics', analyticsSchema);

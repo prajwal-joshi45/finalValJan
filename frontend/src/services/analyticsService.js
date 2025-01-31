@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = 'http://localhost:5000/api/analytics';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -9,7 +9,7 @@ const axiosInstance = axios.create({
   }
 });
 
-// Add auth token interceptor
+// Add auth token to requests
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -19,35 +19,21 @@ axiosInstance.interceptors.request.use((config) => {
 });
 
 export const analyticsService = {
-  getAnalytics: async () => {
+  async getAnalytics() {
     try {
-      const response = await axiosInstance.get('/analytics/all');
-      return response.data.map(item => ({
-        timestamp: new Date(item.timestamp).toLocaleString('en-US', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        }),
-        originalLink: item.originalLink,
-        shortLink: item.shortLink,
-        ipAddress: item.ipAddress,
-        userDevice: item.userDevice
+      const response = await axiosInstance.get('/list');
+      const analytics = Array.isArray(response.data) ? response.data : [];
+      
+      return analytics.map(item => ({
+        id: item._id || '',
+        timestamp: item.timestamp ? new Date(item.timestamp).toLocaleString() : 'N/A',
+        originalLink: item.linkData?.[0]?.originalLink || 'N/A',
+        shortLink: item.linkData?.[0]?.shortLink || 'N/A',
+        ipAddress: item.ipAddress || 'N/A',
+        userDevice: item.userDevice || 'Unknown'
       }));
     } catch (error) {
-      console.error('Analytics fetch error:', error);
-      throw error;
-    }
-  },
-
-  trackClick: async (linkId) => {
-    try {
-      const response = await axiosInstance.post(`/analytics/track/${linkId}`);
-      return response.data;
-    } catch (error) {
-      console.error('Click tracking error:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || 'Failed to fetch analytics data');
     }
   }
 };
