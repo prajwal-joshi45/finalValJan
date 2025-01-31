@@ -11,8 +11,10 @@ const analyticsSchema = new mongoose.Schema({
       default: Date.now
     },
     ipAddress: String,
-    userDevice: String,
-    browser: String,
+    userDevice: {
+      type: String,
+      default: 'unknown'  // Ensure we always have a device type
+    },    browser: String,
    
   });
   
