@@ -26,7 +26,7 @@ router.post('/', async (req, res) => {
     }
 
     const shortId = generateShortCode();
-    const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
+    const baseUrl = process.env.BASE_URL || 'https://finalvaljan-backend.onrender.com';
     const shortLink = `${baseUrl}/api/links/s/${shortId}`;
 
     const newLink = new Link({
